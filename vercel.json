@@ -1,6 +1,5 @@
 { 
   "version": 2,
-  "buildCommand": "next build",
   "build": [{ "src": "./note.js", "use": "@vercel/node" }],
   "rewrites": [{ "source": "/(.*)", "destination": "/api" }] 
 }
