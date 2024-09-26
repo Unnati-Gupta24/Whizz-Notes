@@ -13,13 +13,13 @@ File Export: Save notes as files for offline use or backup purposes.<br/>
 To run Whizz-Notes locally:<br/>
 
 Clone the repository:<br/>
-```git clone https://github.com/Unnati-Gupta24/Whizz-Notes.git```
+```git clone https://github.com/Unnati-Gupta24/Whizz-Notes.git``` <br/> <br/>
 Navigate to the project directory:<br/>
-```cd Whizz-Notes```
+```cd Whizz-Notes```<br/><br/>
 Install dependencies:<br/>
-```npm install```
+```npm install```<br/><br/>
 Start the application:<br/>
-```node note.js```
+```node note.js```<br/>
 
 ### Usage
 Access the application at http://localhost:3000 after starting the server.
