@@ -1,16 +1,14 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/note.js",
-      "use": "@vercel/node"
+  "functions": {
+    "note.js": {
+      "runtime": "@vercel/node@3"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/api/note.js"
+      "source": "/(.*)",
+      "destination": "/note.js"
     }
   ]
 }
-
