@@ -1,31 +1,43 @@
 const express = require("express");
-const app = express();
 const path = require("path");
-const fs = require("fs");
+
+const app = express();
+
+let notes = {};
 
 app.use(express.json());
-app.use(express.urlencoded({extended:true}));
-app.use(express.static(path.join(__dirname,'public')));
-app.set('view engine','ejs');
+app.use(express.urlencoded({extended: true}));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.get("/",(req,res)=>{
-    fs.readdir(`./files`,function(err,files){
-        res.render("index",{files: files});
-    })
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+app.get("/", (req, res) => {
+    const files = Object.keys(notes);
+    res.render("index", {files: files});
 });
 
-app.get("/file/:filename",(req,res)=>{
-    fs.readFile(`./files/${req.params.filename}`,"utf-8",function(err,filedata){
-        res.render("show",{filename: req.params.filename,filedata});
+app.get("/file/:filename", (req, res) => {
+    const filename = req.params.filename;
+    const filedata = notes[filename] || "File not found";
+    res.render("show", {filename: filename, filedata: filedata});
+});
+
+app.post("/create", (req, res) => {
+    const filename = req.body.title.split(' ').join('');
+    notes[filename] = req.body.details;
+    res.redirect("/");
+});
+
+app.get("/api/health", (req, res) => {
+    res.json({ status: "OK", notes: Object.keys(notes) });
+});
+
+module.exports = app;
+
+if (require.main === module) {
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+        console.log(`Server started on port ${port}`);
     });
-});
-
-app.post("/create",(req,res)=>{
-    fs.writeFile(`./files/${req.body.title.split(' ').join('')}`, req.body.details, function(err){
-        res.redirect("/")
-    });
-});
-
-app.listen(2005,(req,res)=>{
-    console.log("server started");
-});
+}
