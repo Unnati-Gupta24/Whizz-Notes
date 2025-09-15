@@ -1,43 +1,50 @@
 const express = require("express");
-const path = require("path");
-
 const app = express();
+const path = require("path");
+const fs = require("fs");
 
-let notes = {};
+const PORT = 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+
+const filesDir = path.join(__dirname, 'files');
+if (!fs.existsSync(filesDir)) {
+    fs.mkdirSync(filesDir, { recursive: true });
+}
 
 app.get("/", (req, res) => {
-    const files = Object.keys(notes);
-    res.render("index", {files: files});
+    fs.readdir(`./files`, function(err, files) {
+        if (err) {
+            console.error('Error reading files directory:', err);
+            files = [];
+        }
+        res.render("index", {files: files || []});
+    });
 });
 
 app.get("/file/:filename", (req, res) => {
-    const filename = req.params.filename;
-    const filedata = notes[filename] || "File not found";
-    res.render("show", {filename: filename, filedata: filedata});
+    fs.readFile(`./files/${req.params.filename}`, "utf-8", function(err, filedata) {
+        if (err) {
+            console.error('Error reading file:', err);
+            filedata = "File not found or error reading file";
+        }
+        res.render("show", {filename: req.params.filename, filedata: filedata});
+    });
 });
 
 app.post("/create", (req, res) => {
     const filename = req.body.title.split(' ').join('');
-    notes[filename] = req.body.details;
-    res.redirect("/");
-});
-
-app.get("/api/health", (req, res) => {
-    res.json({ status: "OK", notes: Object.keys(notes) });
-});
-
-module.exports = app;
-
-if (require.main === module) {
-    const port = process.env.PORT || 3000;
-    app.listen(port, () => {
-        console.log(`Server started on port ${port}`);
+    fs.writeFile(`./files/${filename}`, req.body.details, function(err) {
+        if (err) {
+            console.error('Error writing file:', err);
+        }
+        res.redirect("/");
     });
-}
+});
+
+app.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
+});
